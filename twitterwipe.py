@@ -6,18 +6,20 @@ from datetime import timedelta, datetime
 from dateutil.parser import parse
 
 def main():
-    print('hello')
-
     with open('config.yaml', 'r') as yamlfile:
-        config = yaml.load(yamlfile)
+        config = yaml.load(yamlfile, Loader=yaml.FullLoader)
 
     delete_timestamps = get_delete_timestamps(config)
 
     purge_activity(delete_timestamps)
 
+    print('done')
+
 
 def get_delete_timestamps(config):
     curr_dt_utc = datetime.utcnow()
+
+    print('datetime at runtime: ', curr_dt_utc)
 
     days = config['days_to_save']
     likes = days['likes']
@@ -31,8 +33,6 @@ def get_delete_timestamps(config):
     likes_time = curr_dt_utc - likes_delta
     retweets_time = curr_dt_utc - retweets_delta
     tweets_time = curr_dt_utc - tweets_delta
-
-    print((likes_time, retweets_time, tweets_time))
 
     return (likes_time, retweets_time, tweets_time)
 
