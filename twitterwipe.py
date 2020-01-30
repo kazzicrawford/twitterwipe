@@ -32,6 +32,8 @@ def get_delete_timestamps(config):
     retweets_time = curr_dt_utc - retweets_delta
     tweets_time = curr_dt_utc - tweets_delta
 
+    print((likes_time, retweets_time, tweets_time))
+
     return (likes_time, retweets_time, tweets_time)
 
 
@@ -40,7 +42,7 @@ def purge_activity(delete_timestamps):
 
     delete_tweets(api, delete_timestamps[2])
     delete_retweets(api, delete_timestamps[1])
-    delete_likes(api, delete_timestamps[0])
+    delete_favorites(api, delete_timestamps[0])
 
 
 def delete_tweets(api, ts):
@@ -50,15 +52,27 @@ def delete_tweets(api, ts):
             try:
                 api.destroy_status(status.id)
             except:
-                print('failed to delete {}'.format(status.id))
+                print('failed to delete tweet {}'.format(status.id))
     return
 
 
 def delete_retweets(api, ts):
+    for status in tweepy.Cursor(api.user_timeline).items():
+        if status.created_at < ts:
+            try:
+                api.unretweet(status.id)
+            except:
+                print('failed to unretweet {}'.format(status.id))
     return
 
 
-def delete_likes(api, ts):
+def delete_favorites(api, ts):
+    for status in tweepy.Cursor(api.favorites).items():
+        if status.created_at < ts:
+            try:
+                api.destroy_favorite(status.id)
+            except:
+                print('failed to delete favorite'.format(status.id))
     return
 
 
@@ -69,7 +83,7 @@ def get_api():
     auth = tweepy.OAuthHandler(d['consumer_key'], d['consumer_secret'])
     auth.set_access_token(d['app_key'], d['app_secret'])
 
-    return tweepy.API(auth)
+    return tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
 if __name__ == '__main__':
 
