@@ -15,3 +15,8 @@ put in the number of days worth of past data (starting from runtime) you want to
 python twitterwipe.py
 
 5) logs will be written to logs.logs, which is registered in the .gitignore.
+
+# epilogue
+if you have more than a certain number of favorites, this script might not destroy them in totality (i think it's like ~3k likes). Here's a link to what i did to get them all:  
+
+https://gist.github.com/aymericbeaumet/d1d6799a1b765c3c8bc0b675b1a1547d
