@@ -2,8 +2,13 @@ import os
 import tweepy
 import json
 import yaml
+import logging
 from datetime import timedelta, datetime
 from dateutil.parser import parse
+
+logging.basicConfig(filename='log.log', level=logging.INFO, format='%(asctime)s %(message)s')
+
+logger = logging.getLogger(__name__)
 
 def main():
     with open('config.yaml', 'r') as yamlfile:
@@ -13,13 +18,14 @@ def main():
 
     purge_activity(delete_timestamps)
 
-    print('done')
+    logger.info('done')
+
 
 
 def get_delete_timestamps(config):
     curr_dt_utc = datetime.utcnow()
 
-    print('datetime at runtime: ', curr_dt_utc)
+    logger.info('datetime at runtime: ' + str(curr_dt_utc))
 
     days = config['days_to_save']
     likes = days['likes']
@@ -51,8 +57,9 @@ def delete_tweets(api, ts):
         if status.created_at < ts:
             try:
                 api.destroy_status(status.id)
-            except:
-                print('failed to delete tweet {}'.format(status.id))
+            except Exception as e:
+                logger.error("failed to delete {}".format(status.id), exc_info=True)
+
     return
 
 
@@ -62,7 +69,7 @@ def delete_retweets(api, ts):
             try:
                 api.unretweet(status.id)
             except:
-                print('failed to unretweet {}'.format(status.id))
+                logger.error('failed to unretweet {}'.format(status.id),exc_info=True)
     return
 
 
@@ -72,7 +79,7 @@ def delete_favorites(api, ts):
             try:
                 api.destroy_favorite(status.id)
             except:
-                print('failed to delete favorite'.format(status.id))
+                logger.error('failed to delete favorite'.format(status.id), exc_info=True)
     return
 
 
