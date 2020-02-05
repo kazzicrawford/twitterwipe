@@ -3,9 +3,11 @@ import tweepy
 import json
 import yaml
 import logging
+import concurrent.futures
 from datetime import timedelta, datetime
 
-logging.basicConfig(filename='log.log', level=logging.INFO, format='%(asctime)s %(message)s')
+logging.basicConfig(filename='log.log', level=logging.INFO,
+        format='%(asctime)s %(message)s')
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +47,10 @@ def get_delete_timestamps(config):
 def purge_activity(delete_timestamps):
     api = get_api()
 
-    delete_tweets(api, delete_timestamps[2])
-    delete_retweets(api, delete_timestamps[1])
-    delete_favorites(api, delete_timestamps[0])
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as e:
+        e.submit(delete_tweets, api, delete_timestamps[2])
+        e.submit(delete_retweets, api, delete_timestamps[1])
+        e.submit(delete_favorites, api, delete_timestamps[0])
 
 
 def delete_tweets(api, ts):
