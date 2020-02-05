@@ -4,13 +4,15 @@ import json
 import yaml
 import logging
 from datetime import timedelta, datetime
-from dateutil.parser import parse
 
 logging.basicConfig(filename='log.log', level=logging.INFO, format='%(asctime)s %(message)s')
 
 logger = logging.getLogger(__name__)
 
 def main():
+
+    logger.info('starting twitterwipe')
+
     with open('config.yaml', 'r') as yamlfile:
         config = yaml.load(yamlfile, Loader=yaml.FullLoader)
 
@@ -21,11 +23,8 @@ def main():
     logger.info('done')
 
 
-
 def get_delete_timestamps(config):
     curr_dt_utc = datetime.utcnow()
-
-    logger.info('datetime at runtime: ' + str(curr_dt_utc))
 
     days = config['days_to_save']
     likes = days['likes']
@@ -53,33 +52,58 @@ def purge_activity(delete_timestamps):
 
 def delete_tweets(api, ts):
 
+    logger.info('deleting tweets before {}'.format(str(ts)))
+
+    count = 0
+
     for status in tweepy.Cursor(api.user_timeline).items():
         if status.created_at < ts:
             try:
                 api.destroy_status(status.id)
+                count += 1
             except Exception as e:
                 logger.error("failed to delete {}".format(status.id), exc_info=True)
+
+    logger.info('{} tweets deleted'.format(count))
 
     return
 
 
 def delete_retweets(api, ts):
+
+    logger.info('deleting retweets before {}'.format(str(ts)))
+
+    count = 0
+
     for status in tweepy.Cursor(api.user_timeline).items():
         if status.created_at < ts:
             try:
                 api.unretweet(status.id)
+                count+=1
             except:
                 logger.error('failed to unretweet {}'.format(status.id),exc_info=True)
+    logger.info('{} retweets deleted'.format(count))
+
+
     return
 
 
 def delete_favorites(api, ts):
+
+    logger.info('deleting favorites before {}'.format(str(ts)))
+
+    count = 0
+
     for status in tweepy.Cursor(api.favorites).items():
         if status.created_at < ts:
             try:
                 api.destroy_favorite(status.id)
+                count+=1
             except:
                 logger.error('failed to delete favorite'.format(status.id), exc_info=True)
+
+    logger.info('{} favorites deleted'.format(count))
+
     return
 
 
@@ -92,7 +116,6 @@ def get_api():
 
     return tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
-if __name__ == '__main__':
 
-    # insert a check for auth credentials and send error email if broken
+if __name__ == '__main__':
     main()
