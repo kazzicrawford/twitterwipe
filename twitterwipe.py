@@ -6,7 +6,7 @@ import logging
 import concurrent.futures
 from datetime import timedelta, datetime
 
-logging.basicConfig(filename='log.log', level=logging.INFO,
+logging.basicConfig(filename=os.path.dirname(os.path.realpath(__file__))+'/log.log', level=logging.INFO,
         format='%(asctime)s %(message)s')
 
 logger = logging.getLogger(__name__)
