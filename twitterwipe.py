@@ -6,7 +6,9 @@ import logging
 import concurrent.futures
 from datetime import timedelta, datetime
 
-logging.basicConfig(filename=os.path.dirname(os.path.realpath(__file__))+'/log.log', level=logging.INFO,
+full_path = os.path.dirname(os.path.realpath(__file__))
+
+logging.basicConfig(filename=full_path + '/log.log', level=logging.INFO,
         format='%(asctime)s %(message)s')
 
 logger = logging.getLogger(__name__)
@@ -15,11 +17,12 @@ def main():
 
     logger.info('starting twitterwipe')
 
-    with open('config.yaml', 'r') as yamlfile:
+    with open(full_path + '/config.yaml', 'r') as yamlfile:
         config = yaml.load(yamlfile, Loader=yaml.FullLoader)
 
+    logger.info('finished configuration')
     delete_timestamps = get_delete_timestamps(config)
-
+    logger.info('got timestamps')
     purge_activity(delete_timestamps)
 
     logger.info('done')
@@ -111,7 +114,7 @@ def delete_favorites(api, ts):
 
 
 def get_api():
-    with open('keys.json', 'r') as f:
+    with open(full_path + '/keys.json', 'r') as f:
         d = json.load(f)
 
     auth = tweepy.OAuthHandler(d['consumer_key'], d['consumer_secret'])
