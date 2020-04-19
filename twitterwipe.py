@@ -14,15 +14,12 @@ logging.basicConfig(filename=full_path + '/log.log', level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 def main():
-
     logger.info('starting twitterwipe')
 
     with open(full_path + '/config.yaml', 'r') as yamlfile:
         config = yaml.load(yamlfile, Loader=yaml.FullLoader)
 
-    logger.info('finished configuration')
     delete_timestamps = get_delete_timestamps(config)
-    logger.info('got timestamps')
     purge_activity(delete_timestamps)
 
     logger.info('done')
@@ -57,7 +54,6 @@ def purge_activity(delete_timestamps):
 
 
 def delete_tweets(api, ts):
-
     logger.info('deleting tweets before {}'.format(str(ts)))
 
     count = 0
@@ -76,7 +72,6 @@ def delete_tweets(api, ts):
 
 
 def delete_retweets(api, ts):
-
     logger.info('deleting retweets before {}'.format(str(ts)))
 
     count = 0
@@ -95,7 +90,6 @@ def delete_retweets(api, ts):
 
 
 def delete_favorites(api, ts):
-
     logger.info('deleting favorites before {}'.format(str(ts)))
 
     count = 0
