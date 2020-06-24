@@ -107,9 +107,18 @@ def delete_favorites(api, ts):
     return
 
 
-def get_api():
-    with open(full_path + '/keys.json', 'r') as f:
-        d = json.load(f)
+def get_api( ):
+
+    try:
+        # get keys from os environment variables if they exist
+        d = { 'consumer_key' : os.environ['CONSUMER_KEY'],
+              'consumer_secret' : os.environ['CONSUMER_SECRET'],
+              'app_key' : os.environ['APP_KEY'],
+              'app_secret' :os.environ['APP_SECRET'] }
+    except KeyError:
+        # environment variables are not found, so try the json file instead
+        with open(full_path + '/keys.json', 'r') as f:
+            d = json.load(f)
 
     auth = tweepy.OAuthHandler(d['consumer_key'], d['consumer_secret'])
     auth.set_access_token(d['app_key'], d['app_secret'])
