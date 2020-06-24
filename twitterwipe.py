@@ -1,4 +1,4 @@
-import os, sys
+import os
 import tweepy
 import json
 import yaml
